@@ -6,7 +6,7 @@
 
 IshemaLink is a specialized logistics API built to bridge the gap between rural farmers and provincial markets. This backend handles secure user registration, asynchronous package tracking, and a smart caching system for shipping tariffs to ensure the platform remains fast even on slow rural mobile data networks.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Language**: Python 3.12  
 - **Framework**: Django 6.0 + Django REST Framework  
@@ -14,7 +14,7 @@ IshemaLink is a specialized logistics API built to bridge the gap between rural 
 - **Asynchronous Logic**: Python `asyncio`  
 - **Caching**: Django LocMemCache  
 
-## ✨ Key Features
+## Key Features
 
 - **Rwandan Identity Validation**: Custom validators ensure all users provide a valid 16-digit Rwandan NID and a correctly formatted phone number (`+250 7XX...`).
 - **Async Status Updates**: When a package arrives at a hub like **Nyabugogo**, the system sends an SMS notification in the background without making the user wait for the network to respond.

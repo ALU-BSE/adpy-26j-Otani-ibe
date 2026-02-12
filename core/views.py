@@ -1,24 +1,58 @@
-from django.http import JsonResponse
-from .models import PackageShipmentTrackingModel
-from .notifications import send_sms_notification_to_farmer_asynchronously
-import asyncio
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-async def update_shipment_status_async_view(request, shipment_id):
-    try:
-        the_shipment = await PackageShipmentTrackingModel.objects.aget(id=shipment_id)
-    except PackageShipmentTrackingModel.DoesNotExist:
-        return JsonResponse({"error": "Shipment not found"}, status=404)
+class IshemaLinkTokenSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['user_type'] = getattr(user, 'this_user_is_either_an_agent_or_a_customer_type', 'DRIVER')
+        return token
 
-    the_shipment.current_package_status_right_now = "ARRIVED_AT_HUB"
-    await the_shipment.asave()
+class IshemaLinkTokenView(TokenObtainPairView):
+    serializer_class = IshemaLinkTokenSerializer
 
-    asyncio.create_task(send_sms_notification_to_farmer_asynchronously(
-        the_shipment.receiver_phone_number_for_sms, 
-        f"Your package {the_shipment.tracking_number_generated_by_system} has arrived at Nyabugogo!"
-    ))
+class VeryStrictThrottle(AnonRateThrottle):
+    rate = '2/minute' 
 
-    return JsonResponse({
-        "message": "Status update started!",
-        "new_status": "ARRIVED_AT_HUB",
-        "instruction": "Check your terminal. The 'SMS Sent' message will appear in 3 seconds."
-    })
+# Task 1: Session Login
+class SessionLoginView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [VeryStrictThrottle] 
+
+    def get(self, request):
+        return Response({
+            "message": "Login Page Active",
+            "instructions": "Use the POST box below to write your username and password."
+        })
+
+    def post(self, request):
+        username_input = request.data.get('username')
+        password_input = request.data.get('password')
+        
+        user_match = authenticate(username=username_input, password=password_input)
+        
+        if user_match is not None:
+            login(request, user_match)
+            return Response({"message": "Session Login Successful!", "user": user_match.username})
+        
+        return Response({"error": "Invalid credentials"}, status=401)
+
+class UniversalLogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"message": "Successfully logged out"})
+
+class WhoAmIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        method = "JWT Token" if request.auth else "Session Cookie"
+        return Response({
+            "username": request.user.username,
+            "auth_method": method,
+            "role": getattr(request.user, 'this_user_is_either_an_agent_or_a_customer_type', 'DRIVER')
+        })

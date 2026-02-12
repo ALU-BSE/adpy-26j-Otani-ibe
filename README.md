@@ -35,6 +35,7 @@ pip install -r requirements.txt
 python manage.py migrate
 
 ### 2. Run Server
+```bash
 python manage.py runserver
 
 ### 3. Seed Test Data

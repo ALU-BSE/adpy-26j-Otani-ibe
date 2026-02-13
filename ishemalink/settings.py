@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "core",
     "domestic",
     "international",
+    'security_compliance',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +50,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "2/minute", # Only 2 attempts per minute for easier testing
+        "anon": "2/minute", 
     }
 }
 

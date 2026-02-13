@@ -19,7 +19,6 @@ class IshemaLinkTokenView(TokenObtainPairView):
 class VeryStrictThrottle(AnonRateThrottle):
     rate = '2/minute' 
 
-# Task 1: Session Login
 class SessionLoginView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [VeryStrictThrottle] 

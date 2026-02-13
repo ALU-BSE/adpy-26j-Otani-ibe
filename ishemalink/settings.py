@@ -50,7 +50,9 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "2/minute", 
+        "anon": "100/hour",  
+        "user": "1000/hour",  
+        "login_attempt": "5/minute", 
     }
 }
 

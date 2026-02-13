@@ -6,6 +6,19 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+
+class LoginAttemptThrottle(AnonRateThrottle):
+    rate = '5/minute'
+    
+    def get_cache_key(self, request, view):
+        if request.user.is_authenticated:
+            return None
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': self.get_ident(request)
+        }
+
+
 class IshemaLinkTokenSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -13,15 +26,14 @@ class IshemaLinkTokenSerializer(TokenObtainPairSerializer):
         token['user_type'] = getattr(user, 'this_user_is_either_an_agent_or_a_customer_type', 'DRIVER')
         return token
 
-class IshemaLinkTokenView(TokenObtainPairView):
-    serializer_class = IshemaLinkTokenSerializer
 
-class VeryStrictThrottle(AnonRateThrottle):
-    rate = '2/minute' 
+class IshemaLinkTokenView(TokenObtainPairView):
+
+    throttle_classes = [LoginAttemptThrottle] 
 
 class SessionLoginView(APIView):
     permission_classes = [AllowAny]
-    throttle_classes = [VeryStrictThrottle] 
+    throttle_classes = [LoginAttemptThrottle]    
 
     def get(self, request):
         return Response({
@@ -41,13 +53,16 @@ class SessionLoginView(APIView):
         
         return Response({"error": "Invalid credentials"}, status=401)
 
+
 class UniversalLogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Successfully logged out"})
 
+
 class WhoAmIView(APIView):
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         method = "JWT Token" if request.auth else "Session Cookie"
         return Response({

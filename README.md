@@ -42,6 +42,14 @@ Why: Unlike simple hashing, you need to occasionally view the ID for verificatio
 - **Non-Blocking I/O**: Implemented `asyncio` for notifications to simulate real-world network constraints common in rural provinces, ensuring the API remains responsive.
 - **Manual Pagination**: Chose a manual meta-response structure for pagination to provide mobile frontends.
 
+## Security Demonstration Video
+I have recorded a 6-minute technical walkthrough of the security implementation for IshemaLink. 
+
+> [!IMPORTANT]
+> **[Watch the IshemaLink Security Demo here](https://drive.google.com/file/d/1FszOEY5wdoDNDLTvAHOybR_BufwJu22r/view?usp=sharing)**
+
+
+
 ##  Quick Start
 
 ### 1. Setup

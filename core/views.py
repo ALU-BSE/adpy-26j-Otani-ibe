@@ -5,19 +5,11 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from drf_spectacular.utils import extend_schema # For Task 1 Documentation
 
 class LoginAttemptThrottle(AnonRateThrottle):
     rate = '5/minute'
-    
-    def get_cache_key(self, request, view):
-        if request.user.is_authenticated:
-            return None
-        return self.cache_format % {
-            'scope': self.scope,
-            'ident': self.get_ident(request)
-        }
-
+    scope = 'login_attempt'
 
 class IshemaLinkTokenSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -26,9 +18,8 @@ class IshemaLinkTokenSerializer(TokenObtainPairSerializer):
         token['user_type'] = getattr(user, 'this_user_is_either_an_agent_or_a_customer_type', 'DRIVER')
         return token
 
-
 class IshemaLinkTokenView(TokenObtainPairView):
-
+    serializer_class = IshemaLinkTokenSerializer
     throttle_classes = [LoginAttemptThrottle] 
 
 class SessionLoginView(APIView):
@@ -41,6 +32,18 @@ class SessionLoginView(APIView):
             "instructions": "Use the POST box below to write your username and password."
         })
 
+    @extend_schema(
+        request={
+            'application/json': {
+                'type': 'object',
+                'properties': {
+                    'username': {'type': 'string'},
+                    'password': {'type': 'string'},
+                },
+                'required': ['username', 'password']
+            }
+        }
+    )
     def post(self, request):
         username_input = request.data.get('username')
         password_input = request.data.get('password')
@@ -53,12 +56,10 @@ class SessionLoginView(APIView):
         
         return Response({"error": "Invalid credentials"}, status=401)
 
-
 class UniversalLogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Successfully logged out"})
-
 
 class WhoAmIView(APIView):
     permission_classes = [IsAuthenticated]

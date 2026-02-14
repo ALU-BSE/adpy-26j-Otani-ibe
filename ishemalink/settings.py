@@ -5,6 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-1%^736f5&f)th1skt#x6$bpv7e&^=%&fc3#q5g1%8ofigk*2h^"
 DEBUG = True
 ALLOWED_HOSTS = ['*'] 
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -18,7 +19,8 @@ INSTALLED_APPS = [
     "core",
     "domestic",
     "international",
-    'security_compliance',
+    "security_compliance", 
+    "drf_spectacular",      
 ]
 
 MIDDLEWARE = [
@@ -33,7 +35,6 @@ MIDDLEWARE = [
     "core.middleware.IshemaSecurityHeaderMiddleware", 
 ]
 
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = [
     "https://bookish-rotary-phone-g4xg5jwp6qw7c5j5-8000.app.github.dev",
@@ -41,6 +42,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000"
 ]
 
+# COMBINED REST_FRAMEWORK SETTINGS
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -52,13 +54,14 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": "100/hour",  
         "user": "1000/hour",  
-        "login_attempt": "5/minute", 
-    }
+        "login_attempt": "5/minute",   
+    },
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15), 
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 

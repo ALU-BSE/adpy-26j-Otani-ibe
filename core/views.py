@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from drf_spectacular.utils import extend_schema # For Task 1 Documentation
+from drf_spectacular.utils import extend_schema 
 
 class LoginAttemptThrottle(AnonRateThrottle):
     rate = '5/minute'

@@ -42,7 +42,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000"
 ]
 
-# COMBINED REST_FRAMEWORK SETTINGS
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",

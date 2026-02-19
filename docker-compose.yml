@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ishemalink_db
+      - POSTGRES_USER=otaniibe
+      - POSTGRES_PASSWORD=otani_prod_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U otaniibe -d ishemalink_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=0
+      - DATABASE_URL=postgres://otaniibe:otani_prod_pass@db:5432/ishemalink_db
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data:

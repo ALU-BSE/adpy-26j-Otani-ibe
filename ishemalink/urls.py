@@ -1,6 +1,7 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import JsonResponse
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 from domestic.views import (
     update_shipment_status_async_view, 
@@ -17,9 +18,12 @@ urlpatterns = [
     path('api/status/', api_status_check),
     
     path('api/shipments/<int:shipment_id>/update-status/', update_shipment_status_async_view),
-    
     path('api/pricing/tariffs/', get_tariffs_view),
     path('api/admin/cache/clear-tariffs/', clear_tariffs_cache_view),
-    
     path('api/shipments/', get_shipment_manifest_list_with_pagination),
+
+    path('api/', include('core.urls')),
+
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]

@@ -1,0 +1,321 @@
+openapi: 3.0.3
+info:
+  title: IshemaLink National Rollout API
+  version: 2.0.0
+  description: Unified logistics system for MINICOM and RURA compliance.
+paths:
+  /api/admin/dashboard/summary/:
+    get:
+      operationId: admin_dashboard_summary_retrieve
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/commodities/breakdown/:
+    get:
+      operationId: analytics_commodities_breakdown_retrieve
+      description: |-
+        Cargo volume by shipment type (Domestic vs International).
+        Proxy for commodity flow — MINICOM tracks food vs export goods.
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/drivers/leaderboard/:
+    get:
+      operationId: analytics_drivers_leaderboard_retrieve
+      description: |-
+        Top performing drivers by completed deliveries and cargo moved.
+        Anonymized: shows driver ID only, not personal details.
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/revenue/heatmap/:
+    get:
+      operationId: analytics_revenue_heatmap_retrieve
+      description: |-
+        Earnings per origin district — geospatial revenue data.
+        Used by finance teams to identify high-value corridors.
+        Anonymized: grouped by district, no sender info.
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/routes/top/:
+    get:
+      operationId: analytics_routes_top_retrieve
+      description: |-
+        Most frequented origin→destination corridors.
+        MINICOM uses this to prioritize road repair budgets.
+        Optimized: Single GROUP BY query, no N+1.
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/gov/audit/access-log/:
+    get:
+      operationId: gov_audit_access_log_retrieve
+      description: |-
+        Government Audit Trail.
+        MINICOM/RRA can view all financial transactions.
+        Only accessible by staff users.
+      tags:
+      - gov
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/gov/customs/generate-manifest/:
+    post:
+      operationId: gov_customs_generate_manifest_create
+      description: |-
+        EAC Customs Manifest Generator.
+        Produces XML for international shipments crossing Rwanda's borders.
+        Required for all INTERNATIONAL shipment_type records.
+      tags:
+      - gov
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/gov/ebm/sign-receipt/:
+    post:
+      operationId: gov_ebm_sign_receipt_create
+      description: |-
+        RRA EBM Integration.
+        Every payment must generate a digital signature for tax compliance.
+        Required by Rwanda Revenue Authority for all logistics transactions.
+      tags:
+      - gov
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/gov/rura/verify-license/{license_no}/:
+    get:
+      operationId: gov_rura_verify_license_retrieve
+      description: |-
+        RURA Transport Authorization Check.
+        A truck must NOT be dispatched if this check fails.
+        Rwanda context: Validates Heavy Cargo licenses for inter-district transport.
+      parameters:
+      - in: path
+        name: license_no
+        schema:
+          type: string
+        required: true
+      tags:
+      - gov
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/health/deep/:
+    get:
+      operationId: health_deep_retrieve
+      tags:
+      - health
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/broadcast/:
+    post:
+      operationId: notifications_broadcast_create
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/payments/webhook/:
+    post:
+      operationId: payments_webhook_create
+      tags:
+      - payments
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/shipments/create/:
+    post:
+      operationId: shipments_create_create
+      tags:
+      - shipments
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/token/:
+    post:
+      operationId: token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/tracking/{tracking_code}/live/:
+    get:
+      operationId: tracking_live_retrieve
+      parameters:
+      - in: path
+        name: tracking_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - tracking
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

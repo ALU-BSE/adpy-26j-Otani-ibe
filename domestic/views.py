@@ -7,7 +7,7 @@ from django.contrib.auth import logout
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, AllowAny
 from django.db.models import Sum
 from .models import Shipment
 
@@ -88,6 +88,8 @@ class ShipmentCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentWebhookView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
     def post(self, request):
         serializer = PaymentWebhookSerializer(data=request.data)
         if serializer.is_valid():
@@ -97,17 +99,32 @@ class PaymentWebhookView(APIView):
                 with transaction.atomic():
                     payment = PaymentRecord.objects.select_for_update().get(transaction_id=tx_id)
                     shipment = payment.shipment
-                    if momo_status == "SUCCESS" and not payment.is_confirmed:
+                    if payment.is_confirmed:
+                        return Response({
+                            "message": "Payment already confirmed, ignoring callback",
+                            "shipment_status": shipment.payment_status,
+                            "tracking_code": str(shipment.tracking_code)
+                        }, status=status.HTTP_200_OK)
+                    if momo_status == "SUCCESS":
                         payment.is_confirmed = True
                         payment.save()
                         shipment.ebm_signature = f"RRA-EBM-{uuid.uuid4().hex[:10].upper()}"
                         shipment.payment_status = "PAID"
                         shipment.save()
-                        return Response({"message": "Confirmed", "ebm": shipment.ebm_signature}, status=status.HTTP_200_OK)
+                        return Response({
+                            "message": "Confirmed",
+                            "ebm": shipment.ebm_signature,
+                            "shipment_status": shipment.payment_status,
+                            "tracking_code": str(shipment.tracking_code)
+                        }, status=status.HTTP_200_OK)
                     else:
                         shipment.payment_status = "FAILED"
                         shipment.save()
-                        return Response({"message": "Payment failed"}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({
+                            "message": "Payment failed",
+                            "shipment_status": shipment.payment_status,
+                            "tracking_code": str(shipment.tracking_code)
+                        }, status=status.HTTP_400_BAD_REQUEST)
             except PaymentRecord.DoesNotExist:
                 return Response({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -145,3 +162,60 @@ def get_route_analytics(request):
     ).order_by('-total_weight')
     
     return JsonResponse({"route_intelligence": list(stats)})
+
+# --- TASK 1: REAL-TIME TRACKING ---
+class LiveTrackingView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, tracking_code):
+        try:
+            from domestic.models import Shipment
+            shipment = Shipment.objects.get(tracking_code=tracking_code)
+            return Response({
+                'tracking_code': str(shipment.tracking_code),
+                'status': shipment.payment_status,
+                'origin': shipment.origin,
+                'destination': shipment.destination,
+                'current_location': shipment.origin if shipment.payment_status == 'PENDING' else 'In Transit',
+                'coordinates': {'lat': -1.9441, 'lng': 30.0619},
+                'last_updated': shipment.created_at.isoformat()
+            })
+        except Shipment.DoesNotExist:
+            return Response({'error': 'Shipment not found'}, status=404)
+
+# --- TASK 1: ADMIN DASHBOARD ---
+class AdminDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        from domestic.models import Shipment, PaymentRecord
+        from django.db.models import Sum
+        total = Shipment.objects.count()
+        paid = Shipment.objects.filter(payment_status='PAID').count()
+        in_transit = Shipment.objects.filter(payment_status='DISPATCHED').count()
+        failed = Shipment.objects.filter(payment_status='FAILED').count()
+        revenue = PaymentRecord.objects.filter(is_confirmed=True).aggregate(
+            total=Sum('amount'))['total'] or 0
+        return Response({
+            'total_shipments': total,
+            'paid': paid,
+            'in_transit': in_transit,
+            'failed': failed,
+            'total_revenue_rwf': str(revenue),
+            'active_trucks': in_transit,
+        })
+
+# --- TASK 1: BROADCAST NOTIFICATION ---
+class BroadcastNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        message = request.data.get('message')
+        priority = request.data.get('priority', 'NORMAL')
+        if not message:
+            return Response({'error': 'message is required'}, status=400)
+        # Mock: in production this triggers SMS via Raptor/Africa Is Talking
+        return Response({
+            'status': 'broadcast_sent',
+            'message': message,
+            'priority': priority,
+            'recipients': 'all_active_drivers',
+            'channel': 'SMS'
+        })

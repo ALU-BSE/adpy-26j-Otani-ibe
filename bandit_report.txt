@@ -1,31 +1,864 @@
-Run started:2026-02-21 20:50:48.588892+00:00
+Run started:2026-02-21 21:01:17.095341+00:00
 
 Test results:
->> Issue: [B318:blacklist] Using xml.dom.minidom.parseString to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.dom.minidom.parseString with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
-   Severity: Medium   Confidence: High
+>> Issue: [B106:hardcoded_password_funcarg] Possible hardcoded password: 'StrongPass123!'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b106_hardcoded_password_funcarg.html
+   Location: core/tests.py:11:20
+10	        self.client = APIClient()
+11	        self.user = User.objects.create_superuser(
+12	            username='audit_tester',
+13	            email='audit@test.com',
+14	            password='StrongPass123!'
+15	        )
+16	        self.client.force_authenticate(user=self.user)
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using Element to parse untrusted XML data is known to be vulnerable to XML attacks. Replace Element with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
    CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
-   More Info: https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b313-b320-xml-bad-minidom
-   Location: domestic/govtech_views.py:197:17
-196	        raw = tostring(root, encoding="unicode")
-197	        parsed = minidom.parseString(raw)
-198	        return parsed.toprettyxml(indent="  ")
+   More Info: https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: domestic/govtech_views.py:8:0
+7	import datetime
+8	from xml.etree.ElementTree import Element, SubElement, tostring
+9	import defusedxml.minidom as minidom
+
+--------------------------------------------------
+>> Issue: [B107:hardcoded_password_default] Possible hardcoded password: 'StrongPass123!'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b107_hardcoded_password_default.html
+   Location: domestic/tests_task2.py:22:0
+21	# ─────────────────────────────────────────────
+22	def make_user(username="agent", password="StrongPass123!", is_staff=False):
+23	    unique = uuid.uuid4().hex[:6]
+24	    user = User.objects.create_user(
+25	        username=f"{username}_{unique}",
+26	        email=f"{username}_{unique}@rw.com",
+27	        password=password
+28	    )
+29	    if is_staff:
+30	        user.is_staff = True
+31	        user.is_superuser = True
+32	        user.save()
+33	    return user
+34	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:67:8
+66	    def test_valid_nid(self):
+67	        assert self.nid("1199080112345678") is True
+68	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:70:8
+69	    def test_nid_none(self):
+70	        assert self.nid(None) is False
+71	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:73:8
+72	    def test_nid_too_short(self):
+73	        assert self.nid("119908011234") is False
+74	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:76:8
+75	    def test_nid_wrong_start(self):
+76	        assert self.nid("2199080112345678") is False
+77	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:79:8
+78	    def test_nid_has_letters(self):
+79	        assert self.nid("119908011234ABCD") is False
+80	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:82:8
+81	    def test_nid_empty(self):
+82	        assert self.nid("") is False
+83	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:85:8
+84	    def test_valid_phone(self):
+85	        assert self.phone("+250788123456") is True
+86	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:88:8
+87	    def test_phone_none(self):
+88	        assert self.phone(None) is False
+89	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:91:8
+90	    def test_phone_wrong_prefix(self):
+91	        assert self.phone("0788123456") is False
+92	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:94:8
+93	    def test_phone_too_short(self):
+94	        assert self.phone("+25078812") is False
+95	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:97:8
+96	    def test_phone_too_long(self):
+97	        assert self.phone("+2507881234567890") is False
+98	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:118:8
+117	        })
+118	        assert shipment.tariff_amount == Decimal("50000")
+119	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:128:8
+127	        })
+128	        assert shipment.tariff_amount == Decimal("60000")
+129	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:139:8
+138	        })
+139	        assert shipment.tariff_amount == Decimal("500000")
+140	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:159:8
+158	        })
+159	        assert shipment is not None
+160	        assert shipment.tariff_amount == Decimal("5000")
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:160:8
+159	        assert shipment is not None
+160	        assert shipment.tariff_amount == Decimal("5000")
+161	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:183:8
+182	        result = self.adapter.initiate_payment("0788123456", 50000)
+183	        assert result.startswith("MOMO-"), f"Expected MOMO- prefix, got: {result}"
+184	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:188:8
+187	        id2 = self.adapter.initiate_payment("0788123456", 50000)
+188	        assert id1 != id2, "Each transaction must be unique"
+189	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:201:8
+200	    def test_valid_rura_license(self):
+201	        assert self.svc.verify_rura_license("LIC-12345")["valid"] is True
+202	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:204:8
+203	    def test_rura_license_too_short(self):
+204	        assert self.svc.verify_rura_license("LIC")["valid"] is False
+205	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:207:8
+206	    def test_rura_license_none(self):
+207	        assert self.svc.verify_rura_license(None)["valid"] is False
+208	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:210:8
+209	    def test_rura_license_empty(self):
+210	        assert self.svc.verify_rura_license("")["valid"] is False
+211	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:213:8
+212	    def test_ebm_starts_with_rra(self):
+213	        assert self.svc.generate_ebm_receipt(50000, 1).startswith("RRA-EBM-")
+214	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:216:8
+215	    def test_ebm_unique_per_call(self):
+216	        assert self.svc.generate_ebm_receipt(50000, 1) != \
+217	               self.svc.generate_ebm_receipt(50000, 1)
+218	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:235:8
+234	        result = BookingService().assign_driver_to_shipment(shipment.id, self.driver)
+235	        assert result is True
+236	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:240:8
+239	        result = BookingService().assign_driver_to_shipment(99999, self.driver)
+240	        assert result is False
+241	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:249:8
+248	        result = BookingService().assign_driver_to_shipment(shipment.id, bad_driver)
+249	        assert result is False
+250	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:262:8
+261	    def test_sms_returns_true(self):
+262	        assert self.engine.send_pickup_sms("+250788123456", "ISH-001") is True
+263	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:265:8
+264	    def test_email_returns_true(self):
+265	        assert self.engine.send_customs_email("exp@rw.com", "ISH-002") is True
+266	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:269:8
+268	        """Rwanda context: farmer in Nyamagabe gets pickup SMS."""
+269	        assert self.engine.send_pickup_sms("+250722987654", "ISH-COFFEE-2025") is True
+270	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:297:8
+296	        }, format="json")
+297	        assert response.status_code == 201
+298	        assert "tracking_code" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:298:8
+297	        assert response.status_code == 201
+298	        assert "tracking_code" in response.data
+299	        assert "momo_id" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:299:8
+298	        assert "tracking_code" in response.data
+299	        assert "momo_id" in response.data
+300	        assert Decimal(response.data["tariff"]) == Decimal("100000")
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:300:8
+299	        assert "momo_id" in response.data
+300	        assert Decimal(response.data["tariff"]) == Decimal("100000")
+301	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:305:8
+304	        response = self.client.post("/api/shipments/create/", {}, format="json")
+305	        assert response.status_code == 400
+306	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:317:8
+316	        }, format="json")
+317	        assert response.status_code in [401, 403]
+318	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:329:8
+328	        }, format="json")
+329	        assert response.status_code == 200
+330	        assert "ebm" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:330:8
+329	        assert response.status_code == 200
+330	        assert "ebm" in response.data
+331	        shipment.refresh_from_db()
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:332:8
+331	        shipment.refresh_from_db()
+332	        assert shipment.payment_status == "PAID"
+333	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:343:8
+342	        }, format="json")
+343	        assert response.status_code == 400
+344	        shipment.refresh_from_db()
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:345:8
+344	        shipment.refresh_from_db()
+345	        assert shipment.payment_status == "FAILED"
+346	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:359:8
+358	        }, format="json")
+359	        assert response.status_code == 200
+360	        assert "already" in response.data.get("message", "").lower()
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:360:8
+359	        assert response.status_code == 200
+360	        assert "already" in response.data.get("message", "").lower()
+361	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:367:8
+366	        }, format="json")
+367	        assert response.status_code == 404
+368	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html
+   Location: domestic/tests_task2.py:390:12
+389	                })
+390	            except Exception:
+391	                pass
+392	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:394:8
+393	        # No PAID shipment from Nyamagabe should exist
+394	        assert Shipment.objects.filter(
+395	            sender=self.user, origin="Nyamagabe", payment_status="PAID"
+396	        ).count() == 0
+397	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:413:8
+412	        response = self.client.get(f"/api/tracking/{shipment.tracking_code}/live/")
+413	        assert response.status_code == 200
+414	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:417:8
+416	        response = self.client.get(f"/api/tracking/{uuid.uuid4()}/live/")
+417	        assert response.status_code == 404
+418	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:423:8
+422	        response = anon.get(f"/api/tracking/{shipment.tracking_code}/live/")
+423	        assert response.status_code in [401, 403]
+424	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:428:8
+427	        response = self.client.get("/api/admin/dashboard/summary/")
+428	        assert response.status_code == 200
+429	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:433:8
+432	        response = self.client.get("/api/admin/dashboard/summary/")
+433	        assert response.status_code == 200
+434	        # Dashboard must return SOME data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:435:8
+434	        # Dashboard must return SOME data
+435	        assert response.data is not None
+436	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:461:8
+460	        # Must never succeed — any error response is acceptable
+461	        assert response.status_code != 200, \
+462	            "CRITICAL: SQL injection returned 200 with data!"
+463	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:471:8
+470	        }, format="json")
+471	        assert response.status_code in [400, 404]
+472	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:484:8
+483	        # Must respond (not crash)
+484	        assert response.status_code in [200, 201, 400, 401, 403]
+485	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:505:8
+504	        # Test passes regardless — we're auditing, not blocking coverage
+505	        assert response.status_code in [200, 403, 404]
+506	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:539:8
+538	        payment.refresh_from_db()
+539	        assert payment.is_confirmed is True
+540	        shipment.refresh_from_db()
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:541:8
+540	        shipment.refresh_from_db()
+541	        assert shipment.payment_status == "PAID"
+542	        assert len(results) == 2
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:542:8
+541	        assert shipment.payment_status == "PAID"
+542	        assert len(results) == 2
+543	        assert all(s in [200, 400] for s in results)
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:543:8
+542	        assert len(results) == 2
+543	        assert all(s in [200, 400] for s in results)
+544	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:557:8
+556	        response = self.client.get("/api/status/")
+557	        assert response.status_code == 200
+558	        assert response.json()["status"] == "Healthy"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:558:8
+557	        assert response.status_code == 200
+558	        assert response.json()["status"] == "Healthy"
+559	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:562:8
+561	        response = self.client.get("/api/health/deep/")
+562	        assert response.status_code in [200, 503]
+563	        data = response.json()
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:564:8
+563	        data = response.json()
+564	        assert "status" in data
+565	        assert "database" in data["services"]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:565:8
+564	        assert "status" in data
+565	        assert "database" in data["services"]
+566	        assert "cache_redis" in data["services"]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:566:8
+565	        assert "database" in data["services"]
+566	        assert "cache_redis" in data["services"]
+567	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:570:8
+569	        response = self.client.get("/api/pricing/tariffs/")
+570	        assert response.status_code == 200
+571	        assert "zones" in response.json()
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:571:8
+570	        assert response.status_code == 200
+571	        assert "zones" in response.json()
+572	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:577:8
+576	        response = self.client.get("/api/pricing/tariffs/")
+577	        assert response.status_code == 200
+578	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:581:8
+580	        response = self.client.get("/api/admin/cache/clear-tariffs/")
+581	        assert response.status_code == 200
+582	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:587:8
+586	        response = self.client.get("/api/auth/me/")
+587	        assert response.status_code == 200
+588	        assert "username" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:588:8
+587	        assert response.status_code == 200
+588	        assert "username" in response.data
+589	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:593:8
+592	        response = anon.get("/api/auth/me/")
+593	        assert response.status_code in [401, 403]
+594	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:599:8
+598	        response = self.client.post("/api/auth/logout/")
+599	        assert response.status_code == 200
+600	
+
+--------------------------------------------------
+>> Issue: [B106:hardcoded_password_funcarg] Possible hardcoded password: 'StrongPass123!'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b106_hardcoded_password_funcarg.html
+   Location: domestic/tests_task2.py:603:15
+602	        """Verify the real token URL /api/token/ works."""
+603	        user = make_user("jwt_tester", password="StrongPass123!")
+604	        response = self.client.post("/api/token/", {
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'StrongPass123!'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b105_hardcoded_password_string.html
+   Location: domestic/tests_task2.py:606:12
+605	            "username": user.username,
+606	            "password": "StrongPass123!"
+607	        }, format="json")
+608	        assert response.status_code == 200
+609	        assert "access" in response.data
+610	        assert "refresh" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:608:8
+607	        }, format="json")
+608	        assert response.status_code == 200
+609	        assert "access" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:609:8
+608	        assert response.status_code == 200
+609	        assert "access" in response.data
+610	        assert "refresh" in response.data
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.3/plugins/b101_assert_used.html
+   Location: domestic/tests_task2.py:610:8
+609	        assert "access" in response.data
+610	        assert "refresh" in response.data
+611	
 
 --------------------------------------------------
 
 Code scanned:
-	Total lines of code: 1422
+	Total lines of code: 1883
 	Total lines skipped (#nosec): 0
 	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
 
 Run metrics:
 	Total issues (by severity):
 		Undefined: 0
-		Low: 3
-		Medium: 1
+		Low: 82
+		Medium: 0
 		High: 0
 	Total issues (by confidence):
 		Undefined: 0
 		Low: 0
-		Medium: 1
-		High: 3
+		Medium: 4
+		High: 78
 Files skipped (0):

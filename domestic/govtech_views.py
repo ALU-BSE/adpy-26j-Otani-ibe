@@ -6,7 +6,7 @@ Reuses GovTechService already built in domestic/services.py
 import uuid
 import datetime
 from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom import minidom
+import defusedxml.minidom as minidom
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status

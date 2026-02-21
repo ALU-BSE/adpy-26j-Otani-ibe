@@ -1,5 +1,11 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib import admin
+from domestic.govtech_views import (
+    EBMSignReceiptView,
+    RURAVerifyLicenseView,
+    CustomsGenerateManifestView,
+    GovAuditAccessLogView,
+)
 from django.urls import path, include
 from django.http import JsonResponse
 from domestic.views import (
@@ -25,4 +31,8 @@ urlpatterns = [
     path("api/admin/cache/clear-tariffs/", clear_tariffs_cache_view),
     path("api/shipments/analytics/route/", get_route_analytics),
     path("api/", include("domestic.urls")),
+    path("api/gov/ebm/sign-receipt/", EBMSignReceiptView.as_view(), name="ebm-sign"),
+    path("api/gov/rura/verify-license/<str:license_no>/", RURAVerifyLicenseView.as_view(), name="rura-verify"),
+    path("api/gov/customs/generate-manifest/", CustomsGenerateManifestView.as_view(), name="customs-manifest"),
+    path("api/gov/audit/access-log/", GovAuditAccessLogView.as_view(), name="gov-audit"),
 ]

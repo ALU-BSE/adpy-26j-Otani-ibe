@@ -1,11 +1,13 @@
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
 class IshemaLinkUserAccountModel(AbstractUser):
-    the_16_digit_rwandan_nid_number = models.CharField(max_length=255, null=True, blank=True)
-    this_user_is_either_an_agent_or_a_customer_type = models.CharField(max_length=20, default='DRIVER')
-    is_identity_verified_by_system = models.BooleanField(default=False)
+    USER_TYPES = [('AGENT', 'Agent'), ('CUSTOMER', 'Customer'), ('DRIVER', 'Driver')]
+    the_16_digit_rwandan_nid_number = models.CharField(max_length=16, null=True, blank=True)
+    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='CUSTOMER')
+    is_identity_verified = models.BooleanField(default=False)
 
 class Shipment(models.Model):
     SHIPMENT_TYPES = [('DOMESTIC', 'Domestic'), ('INTERNATIONAL', 'International')]
@@ -25,17 +27,17 @@ class Shipment(models.Model):
     weight_kg = models.DecimalField(max_digits=10, decimal_places=2)
     tariff_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    
+    ebm_signature = models.CharField(max_length=255, null=True, blank=True)
+    
     driver_assigned = models.ForeignKey(
         IshemaLinkUserAccountModel, 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
-        limit_choices_to={'this_user_is_either_an_agent_or_a_customer_type': 'DRIVER'}
+        limit_choices_to={'user_type': 'DRIVER'}
     )
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.tracking_code} ({self.payment_status})"
 
 class PaymentRecord(models.Model):
     shipment = models.OneToOneField(Shipment, on_delete=models.CASCADE, related_name='payment')

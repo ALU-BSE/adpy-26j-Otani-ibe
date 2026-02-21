@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15
@@ -6,33 +8,25 @@ services:
     environment:
       - POSTGRES_DB=ishemalink_db
       - POSTGRES_USER=otaniibe
-      - POSTGRES_PASSWORD=otani_prod_pass
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U otaniibe -d ishemalink_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - POSTGRES_PASSWORD=otani12345
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
 
   web:
     build: .
+    command: gunicorn ishemalink.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
-      - .:/app
+      - .:/code
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=0
-      - DATABASE_URL=postgres://otaniibe:otani_prod_pass@db:5432/ishemalink_db
-      - REDIS_URL=redis://redis:6379/1
+      - DATABASE_URL=postgres://otaniibe:otani12345@db:5432/ishemalink_db
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - db
+      - redis
 
 volumes:
   postgres_data:

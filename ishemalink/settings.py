@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'international',
     'django_redis',
     'drf_spectacular',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -123,7 +124,6 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-AUTH_USER_MODEL = 'core.IshemaLinkUserAccountModel'
 
 CACHES = {
     "default": {
@@ -152,7 +152,7 @@ SPECTACULAR_SETTINGS = {
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication", 
+        "rest_framework_simplejwt.authentication.JWTAuthentication", 
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
@@ -187,3 +187,5 @@ CACHES = {
         }
     }
 }
+
+AUTH_USER_MODEL = 'core.IshemaLinkUserAccountModel'

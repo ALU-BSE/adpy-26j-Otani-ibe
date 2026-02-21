@@ -35,3 +35,18 @@ urlpatterns = [
     path('gov/customs/generate-manifest/', CustomsGenerateManifestView.as_view(), name='customs-manifest'),
     path('gov/audit/access-log/', GovAuditAccessLogView.as_view(), name='audit-log'),
 ]
+
+# ── Task 5: Logistics Intelligence ───────────────────────────
+from domestic.analytics_views import (
+    TopRoutesView,
+    CommodityBreakdownView,
+    RevenueHeatmapView,
+    DriverLeaderboardView,
+)
+
+urlpatterns += [
+    path('analytics/routes/top/', TopRoutesView.as_view(), name='analytics-routes'),
+    path('analytics/commodities/breakdown/', CommodityBreakdownView.as_view(), name='analytics-commodities'),
+    path('analytics/revenue/heatmap/', RevenueHeatmapView.as_view(), name='analytics-heatmap'),
+    path('analytics/drivers/leaderboard/', DriverLeaderboardView.as_view(), name='analytics-drivers'),
+]

@@ -1,5 +1,12 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib import admin
+from domestic.analytics_views import (
+    TopRoutesView,
+    CommodityBreakdownView,
+    RevenueHeatmapView,
+    DriverLeaderboardView,
+    AnonymizedDataExportView,
+)
 from domestic.govtech_views import (
     EBMSignReceiptView,
     RURAVerifyLicenseView,
@@ -35,4 +42,9 @@ urlpatterns = [
     path("api/gov/rura/verify-license/<str:license_no>/", RURAVerifyLicenseView.as_view(), name="rura-verify"),
     path("api/gov/customs/generate-manifest/", CustomsGenerateManifestView.as_view(), name="customs-manifest"),
     path("api/gov/audit/access-log/", GovAuditAccessLogView.as_view(), name="gov-audit"),
+    path("api/analytics/routes/top/", TopRoutesView.as_view(), name="analytics-routes"),
+    path("api/analytics/commodities/breakdown/", CommodityBreakdownView.as_view(), name="analytics-commodities"),
+    path("api/analytics/revenue/heatmap/", RevenueHeatmapView.as_view(), name="analytics-heatmap"),
+    path("api/analytics/drivers/leaderboard/", DriverLeaderboardView.as_view(), name="analytics-drivers"),
+    path("api/analytics/export/", AnonymizedDataExportView.as_view(), name="analytics-export"),
 ]

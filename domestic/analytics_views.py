@@ -12,15 +12,8 @@ from rest_framework.permissions import IsAuthenticated
 from domestic.models import Shipment
 
 
-# ─────────────────────────────────────────────
-# 1. TOP ROUTES — GET /api/analytics/routes/top/
-# ─────────────────────────────────────────────
 class TopRoutesView(APIView):
-    """
-    Most frequented origin→destination corridors.
-    MINICOM uses this to prioritize road repair budgets.
-    Optimized: Single GROUP BY query, no N+1.
-    """
+   
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -50,14 +43,8 @@ class TopRoutesView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# ─────────────────────────────────────────────
-# 2. COMMODITIES — GET /api/analytics/commodities/breakdown/
-# ─────────────────────────────────────────────
 class CommodityBreakdownView(APIView):
-    """
-    Cargo volume by shipment type (Domestic vs International).
-    Proxy for commodity flow — MINICOM tracks food vs export goods.
-    """
+   
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -92,15 +79,9 @@ class CommodityBreakdownView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# ─────────────────────────────────────────────
-# 3. REVENUE HEATMAP — GET /api/analytics/revenue/heatmap/
-# ─────────────────────────────────────────────
+
 class RevenueHeatmapView(APIView):
-    """
-    Earnings per origin district — geospatial revenue data.
-    Used by finance teams to identify high-value corridors.
-    Anonymized: grouped by district, no sender info.
-    """
+   
     permission_classes = [IsAuthenticated]
 
     # Kigali district coordinates for known origins
@@ -143,14 +124,7 @@ class RevenueHeatmapView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# ─────────────────────────────────────────────
-# 4. DRIVER LEADERBOARD — GET /api/analytics/drivers/leaderboard/
-# ─────────────────────────────────────────────
 class DriverLeaderboardView(APIView):
-    """
-    Top performing drivers by completed deliveries and cargo moved.
-    Anonymized: shows driver ID only, not personal details.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -184,3 +158,53 @@ class DriverLeaderboardView(APIView):
             ]
         }, status=status.HTTP_200_OK)
 
+
+
+import csv
+import json
+from django.http import HttpResponse
+
+class AnonymizedDataExportView(APIView):
+   
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        export_format = request.query_params.get("format", "json")
+
+        shipments = Shipment.objects.values(
+            'id', 'shipment_type', 'origin', 'destination',
+            'weight_kg', 'tariff_amount', 'payment_status', 'created_at'
+        ).order_by('-id')
+
+        # Anonymize — strip all personal identifiers
+        records = [
+            {
+                "shipment_ref": f"SHP-{s['id']:06d}",
+                "type": s['shipment_type'],
+                "origin_district": s['origin'],
+                "destination_district": s['destination'],
+                "weight_kg": str(s['weight_kg']),
+                "tariff_rwf": str(s['tariff_amount']),
+                "payment_status": s['payment_status'],
+                "date": s['created_at'].strftime("%Y-%m-%d") if s['created_at'] else "N/A",
+                "sender": "ANONYMIZED",
+                "phone": "ANONYMIZED",
+            }
+            for s in shipments
+        ]
+
+        if export_format == "csv":
+            response = HttpResponse(content_type="text/csv")
+            response["Content-Disposition"] = 'attachment; filename="ishemalink_anonymized_export.csv"'
+            writer = csv.DictWriter(response, fieldnames=records[0].keys() if records else [])
+            writer.writeheader()
+            writer.writerows(records)
+            return response
+
+        return Response({
+            "export_format": "JSON",
+            "privacy_notice": "All personal identifiers removed. Compliant with Rwanda Data Protection Law.",
+            "generated_at": __import__("datetime").datetime.now().isoformat(),
+            "total_records": len(records),
+            "data": records
+        })

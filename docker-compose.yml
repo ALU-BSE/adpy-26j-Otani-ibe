@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ishemalink_db
+      - POSTGRES_USER=otaniibe
+      - POSTGRES_PASSWORD=otani12345
+
+  redis:
+    image: redis:7-alpine
+
+  web:
+    build: .
+    command: gunicorn ishemalink.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://otaniibe:otani12345@db:5432/ishemalink_db
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:

@@ -1,0 +1,19 @@
+.env
+*.dump
+*.dump.gz
+
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Coverage
+.coverage
+htmlcov/
+
+# Env files
+.env

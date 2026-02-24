@@ -1,25 +1,19 @@
+.env
+*.dump
+*.dump.gz
 
+# Virtual environment
 .venv/
 
+# Python cache
 __pycache__/
-
 *.pyc
-
 *.pyo
-
 *.pyd
 
-db.sqlite3
+# Coverage
+.coverage
+htmlcov/
 
-*.env
-
+# Env files
 .env
-
-*.log
-
-staticfiles/
-
-media/
-
-.DS_Store
-

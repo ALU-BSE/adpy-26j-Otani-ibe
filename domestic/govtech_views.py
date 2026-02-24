@@ -15,15 +15,9 @@ from domestic.services import GovTechService
 from domestic.models import Shipment, PaymentRecord
 
 
-# ─────────────────────────────────────────────
-# 1. RRA EBM — POST /api/gov/ebm/sign-receipt/
-# ─────────────────────────────────────────────
+
 class EBMSignReceiptView(APIView):
-    """
-    RRA EBM Integration.
-    Every payment must generate a digital signature for tax compliance.
-    Required by Rwanda Revenue Authority for all logistics transactions.
-    """
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -74,15 +68,7 @@ class EBMSignReceiptView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# ─────────────────────────────────────────────
-# 2. RURA LICENSE — GET /api/gov/rura/verify-license/{license_no}/
-# ─────────────────────────────────────────────
 class RURAVerifyLicenseView(APIView):
-    """
-    RURA Transport Authorization Check.
-    A truck must NOT be dispatched if this check fails.
-    Rwanda context: Validates Heavy Cargo licenses for inter-district transport.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, license_no):
@@ -114,16 +100,7 @@ class RURAVerifyLicenseView(APIView):
                 "authority": "Rwanda Utilities Regulatory Authority"
             }, status=status.HTTP_200_OK)
 
-
-# ─────────────────────────────────────────────
-# 3. CUSTOMS MANIFEST — POST /api/gov/customs/generate-manifest/
-# ─────────────────────────────────────────────
 class CustomsGenerateManifestView(APIView):
-    """
-    EAC Customs Manifest Generator.
-    Produces XML for international shipments crossing Rwanda's borders.
-    Required for all INTERNATIONAL shipment_type records.
-    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -198,15 +175,8 @@ class CustomsGenerateManifestView(APIView):
         return parsed.toprettyxml(indent="  ")
 
 
-# ─────────────────────────────────────────────
-# 4. AUDIT LOG — GET /api/gov/audit/access-log/
-# ─────────────────────────────────────────────
 class GovAuditAccessLogView(APIView):
-    """
-    Government Audit Trail.
-    MINICOM/RRA can view all financial transactions.
-    Only accessible by staff users.
-    """
+   
     permission_classes = [IsAuthenticated]
 
     def get(self, request):

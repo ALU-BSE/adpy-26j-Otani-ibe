@@ -1,8 +1,4 @@
-"""
-Task 2: Harvest Stress — Test Suite
-ONE FILE. Zero modifications to existing production code.
-Real URLs: /api/token/, /api/shipments/create/, etc.
-"""
+
 import uuid
 import pytest
 from decimal import Decimal
@@ -16,9 +12,6 @@ from django.core.cache import cache
 User = get_user_model()
 
 
-# ─────────────────────────────────────────────
-# SHARED HELPERS
-# ─────────────────────────────────────────────
 def make_user(username="agent", password="StrongPass123!", is_staff=False):
     unique = uuid.uuid4().hex[:6]
     user = User.objects.create_user(
@@ -34,7 +27,6 @@ def make_user(username="agent", password="StrongPass123!", is_staff=False):
 
 
 def make_shipment_direct(user, origin="Kigali", destination="Musanze", weight=100):
-    """Create shipment directly in DB — no URL dependency."""
     from domestic.models import Shipment, PaymentRecord
     shipment = Shipment.objects.create(
         sender=user,
@@ -53,9 +45,6 @@ def make_shipment_direct(user, origin="Kigali", destination="Musanze", weight=10
     return shipment
 
 
-# ─────────────────────────────────────────────
-# 1. VALIDATORS
-# ─────────────────────────────────────────────
 class TestRwandanValidators(TestCase):
 
     def setUp(self):
@@ -97,9 +86,6 @@ class TestRwandanValidators(TestCase):
         assert self.phone("+2507881234567890") is False
 
 
-# ─────────────────────────────────────────────
-# 2. TARIFF CALCULATION
-# ─────────────────────────────────────────────
 class TestTariffCalculation(TestCase):
 
     def setUp(self):
@@ -146,7 +132,6 @@ class TestTariffCalculation(TestCase):
         from domestic.services import BookingService
         mock_gw = MagicMock()
         mock_gw.initiate_payment.return_value = "MOMO-MOCK999"
-        # Inject mock directly into service instance
         service = BookingService()
         service.payment_gateway = mock_gw
         shipment = service.create_unified_booking(self.user, {
@@ -160,17 +145,9 @@ class TestTariffCalculation(TestCase):
         assert shipment.tariff_amount == Decimal("5000")
 
 
-# ─────────────────────────────────────────────
-# 3. MOMO ADAPTER
-# (lives in domestic/services.py based on codebase inspection)
-# ─────────────────────────────────────────────
 class TestMomoAdapter(TestCase):
 
     def setUp(self):
-        """
-        MomoMockAdapter may be in domestic.services or core.services.
-        We try both and use whichever works.
-        """
         try:
             from domestic.services import MomoMockAdapter
             self.adapter = MomoMockAdapter()
@@ -188,9 +165,6 @@ class TestMomoAdapter(TestCase):
         assert id1 != id2, "Each transaction must be unique"
 
 
-# ─────────────────────────────────────────────
-# 4. GOVTECH SERVICE
-# ─────────────────────────────────────────────
 class TestGovTechService(TestCase):
 
     def setUp(self):
@@ -217,10 +191,6 @@ class TestGovTechService(TestCase):
                self.svc.generate_ebm_receipt(50000, 1)
 
 
-# ─────────────────────────────────────────────
-# 5. ASSIGN DRIVER (covers services.py lines 60-73)
-# ─────────────────────────────────────────────
-class TestAssignDriver(TestCase):
 
     def setUp(self):
         self.sender = make_user("sender")
@@ -249,9 +219,7 @@ class TestAssignDriver(TestCase):
         assert result is False
 
 
-# ─────────────────────────────────────────────
-# 6. NOTIFICATIONS
-# ─────────────────────────────────────────────
+
 class TestNotificationEngine(TestCase):
 
     def setUp(self):
@@ -269,21 +237,11 @@ class TestNotificationEngine(TestCase):
         assert self.engine.send_pickup_sms("+250722987654", "ISH-COFFEE-2025") is True
 
 
-# ─────────────────────────────────────────────
-# 7. INTEGRATION: FULL LIFECYCLE via REAL URLs
-# ─────────────────────────────────────────────
 class TestFullLifecycle(TestCase):
-    """
-    Real URL flow.
-    Token: POST /api/token/
-    Create: POST /api/shipments/create/
-    Webhook: POST /api/payments/webhook/
-    """
 
     def setUp(self):
         self.client = APIClient()
         self.user = make_user("lifecycle_agent")
-        # force_authenticate — works regardless of JWT config
         self.client.force_authenticate(user=self.user)
 
     def test_create_domestic_shipment_201(self):
@@ -300,12 +258,10 @@ class TestFullLifecycle(TestCase):
         assert Decimal(response.data["tariff"]) == Decimal("100000")
 
     def test_create_shipment_missing_fields_returns_400(self):
-        """Covers serializer.errors branch (views.py lines 48-51)."""
         response = self.client.post("/api/shipments/create/", {}, format="json")
         assert response.status_code == 400
 
     def test_create_shipment_unauthenticated_returns_401(self):
-        """Covers IsAuthenticated check (views.py line 38-40)."""
         anon = APIClient()
         response = anon.post("/api/shipments/create/", {
             "shipment_type": "DOMESTIC",
@@ -317,7 +273,6 @@ class TestFullLifecycle(TestCase):
         assert response.status_code in [401, 403]
 
     def test_webhook_success_confirms_payment(self):
-        """Full flow: create → webhook SUCCESS → PAID."""
         from domestic.models import PaymentRecord
         shipment = make_shipment_direct(self.user)
         payment = PaymentRecord.objects.get(shipment=shipment)
@@ -345,7 +300,6 @@ class TestFullLifecycle(TestCase):
         assert shipment.payment_status == "FAILED"
 
     def test_webhook_already_confirmed_is_idempotent(self):
-        """Covers 'already processed' branch (views.py lines 86-88)."""
         from domestic.models import PaymentRecord
         shipment = make_shipment_direct(self.user)
         payment = PaymentRecord.objects.get(shipment=shipment)
@@ -367,12 +321,8 @@ class TestFullLifecycle(TestCase):
         assert response.status_code == 404
 
     def test_network_timeout_does_not_corrupt_db(self):
-        """
-        Rwanda context: 4-hour outage in Nyamagabe.
-        atomic transaction must rollback — no half-written record.
-        """
+       
         from domestic.models import Shipment
-        # Patch at the point where it's actually used in domestic.services
         with patch.object(
             __import__('domestic.services', fromlist=['MomoMockAdapter']).MomoMockAdapter,
             'initiate_payment',
@@ -390,15 +340,11 @@ class TestFullLifecycle(TestCase):
             except Exception:
                 pass
 
-        # No PAID shipment from Nyamagabe should exist
         assert Shipment.objects.filter(
             sender=self.user, origin="Nyamagabe", payment_status="PAID"
         ).count() == 0
 
 
-# ─────────────────────────────────────────────
-# 8. TRACKING & DASHBOARD
-# ─────────────────────────────────────────────
 class TestTrackingAndDashboard(TestCase):
 
     def setUp(self):
@@ -431,18 +377,11 @@ class TestTrackingAndDashboard(TestCase):
         self.client.force_authenticate(user=self.admin)
         response = self.client.get("/api/admin/dashboard/summary/")
         assert response.status_code == 200
-        # Dashboard must return SOME data
         assert response.data is not None
 
 
-# ─────────────────────────────────────────────
-# 9. SECURITY TESTS
-# ─────────────────────────────────────────────
 class TestSecurityFindings(TestCase):
-    """
-    Security audit tests.
-    Some tests document CURRENT behavior and flag issues for the security report.
-    """
+  
 
     def setUp(self):
         self.client = APIClient()
@@ -450,19 +389,12 @@ class TestSecurityFindings(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_sql_injection_does_not_return_data(self):
-        """
-        SQL injection in tracking code must NOT return shipment data.
-        Django UUID field raises ValidationError — view should catch it.
-        SECURITY FINDING: Currently returns 500 (unhandled exception).
-        Acceptable responses: 400, 404, 500 — but NEVER 200 with data.
-        """
+        
         response = self.client.get("/api/tracking/1' OR 1=1--/live/")
-        # Must never succeed — any error response is acceptable
         assert response.status_code != 200, \
             "CRITICAL: SQL injection returned 200 with data!"
 
     def test_unauthenticated_webhook_validates_tx(self):
-        """Webhook is public but must reject unknown transactions."""
         anon = APIClient()
         response = anon.post("/api/payments/webhook/", {
             "transaction_id": "FAKE-TX-INJECT",
@@ -471,24 +403,15 @@ class TestSecurityFindings(TestCase):
         assert response.status_code in [400, 404]
 
     def test_broadcast_endpoint_exists_and_responds(self):
-        """
-        Broadcast endpoint test.
-        SECURITY FINDING: If this returns 200 for non-admin, flag for remediation.
-        """
+        
         response = self.client.post("/api/notifications/broadcast/", {
             "message": "Test alert from regular user"
         }, format="json")
-        # Document current behavior
         print(f"\n[SECURITY AUDIT] Broadcast status for regular user: {response.status_code}")
-        # Must respond (not crash)
         assert response.status_code in [200, 201, 400, 401, 403]
 
     def test_tracking_ownership_behavior(self):
-        """
-        RBAC test: Agent B accessing Agent A's tracking.
-        SECURITY FINDING: If returns 200, ownership check is missing.
-        Documents current state for security report.
-        """
+        
         agent_a = make_user("rbac_a")
         agent_b = make_user("rbac_b")
         shipment = make_shipment_direct(agent_a)
@@ -497,24 +420,16 @@ class TestSecurityFindings(TestCase):
         client_b.force_authenticate(user=agent_b)
         response = client_b.get(f"/api/tracking/{shipment.tracking_code}/live/")
 
-        # Document finding
         if response.status_code == 200:
             print(f"\n[SECURITY FINDING] RBAC MISSING: Agent B can view Agent A's shipment!")
             print("[REMEDIATION] Add sender ownership check to LiveTrackingView")
-        # Test passes regardless — we're auditing, not blocking coverage
         assert response.status_code in [200, 403, 404]
 
 
-# ─────────────────────────────────────────────
-# 10. CONCURRENCY: RACE CONDITION
-# ─────────────────────────────────────────────
+
 class TestConcurrency(TransactionTestCase):
 
     def test_duplicate_webhook_no_double_confirm(self):
-        """
-        Two simultaneous SUCCESS callbacks for the same payment.
-        select_for_update() must ensure only one confirms.
-        """
         from domestic.models import PaymentRecord
         user = make_user("race_agent")
         shipment = make_shipment_direct(user)
@@ -543,9 +458,7 @@ class TestConcurrency(TransactionTestCase):
         assert all(s in [200, 400] for s in results)
 
 
-# ─────────────────────────────────────────────
-# 11. PRODUCTION ENDPOINTS
-# ─────────────────────────────────────────────
+
 class TestProductionEndpoints(TestCase):
 
     def setUp(self):
@@ -599,7 +512,6 @@ class TestProductionEndpoints(TestCase):
         assert response.status_code == 200
 
     def test_real_jwt_token_endpoint(self):
-        """Verify the real token URL /api/token/ works."""
         user = make_user("jwt_tester", password="StrongPass123!")
         response = self.client.post("/api/token/", {
             "username": user.username,

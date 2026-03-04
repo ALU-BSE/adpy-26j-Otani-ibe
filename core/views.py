@@ -4,7 +4,7 @@ from rest_framework import status
 from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from .models import Shipment, PaymentRecord
-from .services import BookingService, GovTechMocks # Ensure you have GovTechMocks
+from .services import BookingService, GovTechMocks
 import uuid
 
 class WhoAmIView(APIView):
@@ -23,7 +23,6 @@ class PaymentWebhookView(APIView):
         
         try:
             with transaction.atomic():
-                # Task 2: select_for_update prevents race conditions during high traffic
                 payment = PaymentRecord.objects.select_for_update().get(transaction_id=tx_id)
                 shipment = payment.shipment
                 
@@ -31,7 +30,6 @@ class PaymentWebhookView(APIView):
                     payment.is_confirmed = True
                     payment.save()
                     
-                    # Task 4: Generate EBM Signature immediately
                     shipment.ebm_signature = f"RRA-EBM-{uuid.uuid4().hex[:10].upper()}"
                     shipment.payment_status = "PAID"
                     shipment.save()

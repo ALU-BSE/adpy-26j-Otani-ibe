@@ -74,8 +74,7 @@ class EBMSignReceiptView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# ─────────────────────────────────────────────
-# 2. RURA LICENSE — GET /api/gov/rura/verify-license/{license_no}/
+# 
 # ─────────────────────────────────────────────
 class RURAVerifyLicenseView(APIView):
     """
@@ -92,7 +91,6 @@ class RURAVerifyLicenseView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Verify via existing GovTechService
         result = GovTechService.verify_rura_license(license_no)
 
         if result["valid"]:
@@ -115,9 +113,7 @@ class RURAVerifyLicenseView(APIView):
             }, status=status.HTTP_200_OK)
 
 
-# ─────────────────────────────────────────────
-# 3. CUSTOMS MANIFEST — POST /api/gov/customs/generate-manifest/
-# ─────────────────────────────────────────────
+
 class CustomsGenerateManifestView(APIView):
     """
     EAC Customs Manifest Generator.
@@ -149,7 +145,6 @@ class CustomsGenerateManifestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Build EAC-compliant XML
         manifest_xml = self._generate_xml(shipment)
 
         return Response({
@@ -171,14 +166,12 @@ class CustomsGenerateManifestView(APIView):
         root.set("version", "2.0")
         root.set("xmlns", "http://eac.int/customs/2024")
 
-        # Header
         header = SubElement(root, "ManifestHeader")
         SubElement(header, "ManifestID").text = f"EAC-{uuid.uuid4().hex[:8].upper()}"
         SubElement(header, "IssuedBy").text = "IshemaLink Rwanda"
         SubElement(header, "IssuedAt").text = datetime.datetime.now().isoformat()
         SubElement(header, "Country").text = "RW"
 
-        # Shipment details
         details = SubElement(root, "ShipmentDetails")
         SubElement(details, "TrackingCode").text = str(shipment.tracking_code)
         SubElement(details, "Origin").text = shipment.origin

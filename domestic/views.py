@@ -15,11 +15,11 @@ from .serializers import ShipmentCreateSerializer, PaymentWebhookSerializer
 from .models import Shipment, PaymentRecord
 from .services import BookingService
 
-from rest_framework.renderers import JSONRenderer # Add this import
+from rest_framework.renderers import JSONRenderer
 
 class DeepHealthCheckView(APIView):
     permission_classes = [AllowAny]
-    renderer_classes = [JSONRenderer] # Add this line to force JSON only
+    renderer_classes = [JSONRenderer] 
 
     def get(self, request):
         health_status = {
@@ -31,7 +31,6 @@ class DeepHealthCheckView(APIView):
             }
         }
 
-        # Check Database
         try:
             connections['default'].cursor()
             health_status["services"]["database"] = "Healthy"
@@ -39,7 +38,6 @@ class DeepHealthCheckView(APIView):
             health_status["status"] = "Unhealthy"
             health_status["services"]["database"] = f"Error: {str(e)}"
 
-        # Check Redis (Cache)
         try:
             cache.set("health_check_ping", "pong", timeout=10)
             if cache.get("health_check_ping") == "pong":
@@ -53,7 +51,6 @@ class DeepHealthCheckView(APIView):
         http_status = status.HTTP_200_OK if health_status["status"] == "Healthy" else status.HTTP_503_SERVICE_UNAVAILABLE
         return Response(health_status, status=http_status)
 
-# --- KEEPING YOUR EXISTING VIEWS ---
 class WhoAmIView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -129,7 +126,6 @@ class PaymentWebhookView(APIView):
                 return Response({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# --- TASK 5 FUNCTIONS ---
 def get_tariffs_view(request):
     the_cached_rates = cache.get("ishemalink_rates")
     if the_cached_rates:
@@ -156,14 +152,12 @@ def get_shipment_manifest_list_with_pagination(request):
     return JsonResponse({"manifests": [], "count": 0})
 def get_route_analytics(request):
     """Task 5: Aggregated data for MINICOM planning"""
-    # Optimized query using GROUP BY
     stats = Shipment.objects.values('origin', 'destination').annotate(
         total_weight=Sum('weight_kg')
     ).order_by('-total_weight')
     
     return JsonResponse({"route_intelligence": list(stats)})
 
-# --- TASK 1: REAL-TIME TRACKING ---
 class LiveTrackingView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, tracking_code):
@@ -182,7 +176,6 @@ class LiveTrackingView(APIView):
         except Shipment.DoesNotExist:
             return Response({'error': 'Shipment not found'}, status=404)
 
-# --- TASK 1: ADMIN DASHBOARD ---
 class AdminDashboardView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -203,7 +196,6 @@ class AdminDashboardView(APIView):
             'active_trucks': in_transit,
         })
 
-# --- TASK 1: BROADCAST NOTIFICATION ---
 class BroadcastNotificationView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -211,7 +203,6 @@ class BroadcastNotificationView(APIView):
         priority = request.data.get('priority', 'NORMAL')
         if not message:
             return Response({'error': 'message is required'}, status=400)
-        # Mock: in production this triggers SMS via Raptor/Africa Is Talking
         return Response({
             'status': 'broadcast_sent',
             'message': message,

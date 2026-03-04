@@ -51,9 +51,6 @@ def booked_shipment(db, agent_user):
     return shipment
 
 
-# ================================================================
-# UNIT TESTS: TARIFF CALCULATION
-# ================================================================
 @pytest.mark.django_db
 class TestTariffCalculation:
 
@@ -78,9 +75,6 @@ class TestTariffCalculation:
         assert service.INTERNATIONAL_RATE == Decimal("1200")
 
 
-# ================================================================
-# UNIT TESTS: NID VALIDATION
-# ================================================================
 @pytest.mark.django_db
 class TestNIDValidation:
 
@@ -101,9 +95,6 @@ class TestNIDValidation:
         assert re.match(r'^\d{16}$', "119988001234567A") is None
 
 
-# ================================================================
-# INTEGRATION TESTS: HAPPY PATH
-# ================================================================
 @pytest.mark.django_db
 class TestHappyPath:
 
@@ -160,9 +151,7 @@ class TestHappyPath:
         assert "total_shipments" in response.data
 
 
-# ================================================================
-# SECURITY TESTS
-# ================================================================
+
 @pytest.mark.django_db
 class TestSecurity:
 
@@ -202,9 +191,6 @@ class TestSecurity:
         assert response.status_code == 404
 
 
-# ================================================================
-# CONCURRENCY TEST
-# ================================================================
 @pytest.mark.django_db(transaction=True)
 class TestConcurrency:
 
@@ -244,9 +230,6 @@ class TestConcurrency:
         assert not any("ERROR" in r for r in results)
 
 
-# ================================================================
-# COVERAGE BOOSTERS
-# ================================================================
 @pytest.mark.django_db
 class TestModelsCoverage:
 
